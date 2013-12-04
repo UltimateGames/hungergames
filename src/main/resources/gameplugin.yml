@@ -1,0 +1,37 @@
+main-class: "com.greatmancode.hungergame.HungerGame"
+description: "The official Ultimate Games Quakecraft game"
+version: "1.0"
+author: "greatman"
+playerType: "CONFIGUREABLE"
+DefaultSettings:
+  MinPlayers: 2
+  MaxPlayers: 16
+  Players:
+    Store-Inventory: false
+    Store-Armor: false
+    Store-Exp: false
+    Store-Effects: false
+    Store-Gamemode: false
+  Reset-After-Match: false
+  Allow-Explosion-Damage: true
+  Allow-Explosion-Block-Breaking: false
+  Allow-Mob-Spawning: false
+  Use-Whitelist-As-Blacklist: false
+CustomValues:
+  StartWaitTime: 30
+  MaxKills: 25
+  items:
+    - IRON_SWORD,1,0.30
+    - STICK,2,0.90
+Instructions:
+- "Right click with your railgun to gib other players!\n\nYour railgun takes one second to reload.\n\n&4First to 25 wins!"
+Messages:
+  GameEnd: "%s won %s on arena %s!"
+  Gib: "%s gibbed %s!"
+  MultipleKill: "&c%s kill!"
+  KillingSpree: "&b%s is on a killing spree!"
+  Rampage: "&b%s is on a rampage!"
+  Domination: "&b%s is dominating!"
+  Unstoppable: "&b%s is unstoppable!"
+  God: "&b%s is a god!"
+  Shutdown: "&b%s was shutdown!"
