@@ -181,10 +181,21 @@ public class HungerGame extends GamePlugin {
             chestOpened.get(arena).add(((Chest) event.getInventory().getHolder()).getLocation());
             event.getInventory().clear();
             List<String> drops = plugin.getConfigManager().getGameConfig(game).getConfig().getStringList("CustomValues.items");
-            int amount = random.nextInt(6);
+            int amount = 2 + random.nextInt(4);
+            boolean[] slotsList = new boolean[event.getInventory().getSize()];
             for (int i = 0; i<= amount; i++) {
+                boolean ok = false;
+                int slot = 0;
+                while (!ok) {
+                    slot = random.nextInt(event.getInventory().getSize());
+                    if (!slotsList[slot]) {
+                        slotsList[slot] = true;
+                        ok = true;
+                    }
+                }
+
                 event.getInventory().setItem(
-                        random.nextInt(event.getInventory().getSize()),
+                        slot,
                         new ItemStack(
                                 Material.matchMaterial(
                                         drops.get(
