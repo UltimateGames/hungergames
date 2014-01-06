@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
@@ -178,15 +179,26 @@ public class HungerGame extends GamePlugin {
     public void onInventoryOpen(Arena arena, InventoryOpenEvent event) {
         if (event.getInventory().getHolder() instanceof Chest && !chestOpened.get(arena).contains(((Chest) event.getInventory().getHolder()).getLocation())) {
             chestOpened.get(arena).add(((Chest) event.getInventory().getHolder()).getLocation());
+            event.getInventory().clear();
             List<String> drops = plugin.getConfigManager().getGameConfig(game).getConfig().getStringList("CustomValues.items");
-            double chance = random.nextDouble();
-            for (String drop: drops) {
-                String[] values = drop.split(",");
-                double dropChance = Double.parseDouble(values[2]);
-                if (chance <= dropChance) {
-                    event.getInventory().addItem(new ItemStack(Material.matchMaterial(values[0]), Integer.parseInt(values[1])));
-                }
+            int amount = random.nextInt(6);
+            for (int i = 0; i<= amount; i++) {
+                event.getInventory().setItem(
+                        random.nextInt(event.getInventory().getSize()),
+                        new ItemStack(
+                                Material.matchMaterial(
+                                        drops.get(
+                                                random.nextInt(drops.size())
+                                        )
+                                )
+                        )
+                );
             }
         }
+    }
+
+    @Override
+    public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
+
     }
 }
