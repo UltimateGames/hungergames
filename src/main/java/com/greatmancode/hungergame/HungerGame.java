@@ -74,6 +74,9 @@ public class HungerGame extends GamePlugin {
         scoreboard.setScore("Alive", arena.getPlayers().size());
         scoreboard.setScore("Dead", 0);
         scoreboard.setVisible(true);
+        for (String player : arena.getPlayers()) {
+            scoreboard.addPlayer(Bukkit.getPlayer(player));
+        }
         return true;
     }
 
