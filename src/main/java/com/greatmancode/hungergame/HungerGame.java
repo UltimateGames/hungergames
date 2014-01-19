@@ -8,6 +8,7 @@ import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.games.Game;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Chest;
@@ -26,6 +27,8 @@ public class HungerGame extends GamePlugin {
     private Game game;
     private Map<Arena, List<Location>> chestOpened = new HashMap<Arena, List<Location>>();
     private Random random = new Random();
+    private final String ALIVE = ChatColor.GREEN + "Alive     ";
+    private final String DEAD = ChatColor.RED + "Dead          ";
 
     @Override
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
@@ -80,8 +83,8 @@ public class HungerGame extends GamePlugin {
             spawnPoint.lock(false);
         }
         ArenaScoreboard scoreboard = plugin.getScoreboardManager().createScoreboard(arena, "Status");
-        scoreboard.setScore("Alive", arena.getPlayers().size());
-        scoreboard.setScore("Dead", 0);
+        scoreboard.setScore(ALIVE, arena.getPlayers().size());
+        scoreboard.setScore(DEAD, 0);
         scoreboard.setVisible(true);
         for (String player : arena.getPlayers()) {
             scoreboard.addPlayer(Bukkit.getPlayer(player));
@@ -177,8 +180,8 @@ public class HungerGame extends GamePlugin {
                 plugin.getMessenger().sendGameMessage(arena, game, "Death", event.getEntity().getName());
             }
             ArenaScoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(arena);
-            scoreboard.setScore("Alive", scoreboard.getScore("Alive") - 1);
-            scoreboard.setScore("Dead", scoreboard.getScore("Dead") + 1);
+            scoreboard.setScore(ALIVE, scoreboard.getScore(ALIVE) - 1);
+            scoreboard.setScore(DEAD, scoreboard.getScore(DEAD) + 1);
             plugin.getPointManager().addPoint(game, event.getEntity().getName(), "death", 1);
             if (arena.getPlayers().size() <= 1) {
                 plugin.getArenaManager().endArena(arena);
