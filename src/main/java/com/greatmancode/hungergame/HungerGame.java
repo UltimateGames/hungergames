@@ -4,6 +4,7 @@ import me.ampayne2.ultimategames.UltimateGames;
 import me.ampayne2.ultimategames.api.GamePlugin;
 import me.ampayne2.ultimategames.arenas.Arena;
 import me.ampayne2.ultimategames.arenas.ArenaStatus;
+import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.games.Game;
 import org.bukkit.Bukkit;
@@ -69,6 +70,10 @@ public class HungerGame extends GamePlugin {
     @Override
     public boolean startArena(Arena arena) {
         chestOpened.get(arena).clear();
+        ArenaScoreboard scoreboard = plugin.getScoreboardManager().createScoreboard(arena, "Status");
+        scoreboard.setScore("Alive", arena.getPlayers().size());
+        scoreboard.setScore("Dead", 0);
+        scoreboard.setVisible(true);
         return true;
     }
 
@@ -168,6 +173,9 @@ public class HungerGame extends GamePlugin {
             } else {
                 plugin.getMessenger().sendGameMessage(arena, game, "Death", event.getEntity().getName());
             }
+            ArenaScoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(arena);
+            scoreboard.setScore("Alive", scoreboard.getScore("Alive") - 1);
+            scoreboard.setScore("Dead", scoreboard.getScore("Dead") + 1);
             plugin.getPointManager().addPoint(game, event.getEntity().getName(), "death", 1);
             if (arena.getPlayers().size() <= 1) {
                 plugin.getArenaManager().endArena(arena);
