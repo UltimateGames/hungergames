@@ -116,6 +116,7 @@ Instructions:
 Messages:
   End: "%s won HungerGames!"
   Kill: "%s killed %s!"
+  Death: "%s died!"
 BlockPlaceWhitelist:
 - "CAKE_BLOCK"
 - "MELON_BLOCK"
