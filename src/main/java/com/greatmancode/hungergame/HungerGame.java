@@ -70,13 +70,6 @@ public class HungerGame extends GamePlugin {
     @Override
     public boolean startArena(Arena arena) {
         chestOpened.get(arena).clear();
-        ArenaScoreboard scoreboard = plugin.getScoreboardManager().createScoreboard(arena, "Status");
-        scoreboard.setScore("Alive", arena.getPlayers().size());
-        scoreboard.setScore("Dead", 0);
-        scoreboard.setVisible(true);
-        for (String player : arena.getPlayers()) {
-            scoreboard.addPlayer(Bukkit.getPlayer(player));
-        }
         return true;
     }
 
@@ -85,6 +78,13 @@ public class HungerGame extends GamePlugin {
         chestOpened.get(arena).clear();
         for (PlayerSpawnPoint spawnPoint :plugin.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
             spawnPoint.lock(false);
+        }
+        ArenaScoreboard scoreboard = plugin.getScoreboardManager().createScoreboard(arena, "Status");
+        scoreboard.setScore("Alive", arena.getPlayers().size());
+        scoreboard.setScore("Dead", 0);
+        scoreboard.setVisible(true);
+        for (String player : arena.getPlayers()) {
+            scoreboard.addPlayer(Bukkit.getPlayer(player));
         }
         return true;
     }

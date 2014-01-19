@@ -137,6 +137,7 @@ Messages:
   End: "%s won HungerGames!"
   Kill: "%s killed %s!"
   Death: "%s died!"
+  leave: "%s left the game!"
 BlockPlaceWhitelist:
 - "CAKE_BLOCK"
 - "MELON_BLOCK"
