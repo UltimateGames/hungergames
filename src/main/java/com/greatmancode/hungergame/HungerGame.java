@@ -106,7 +106,7 @@ public class HungerGame extends GamePlugin {
     @Override
     public boolean addPlayer(Player player, Arena arena) {
         if (arena.getStatus() == ArenaStatus.OPEN && arena.getPlayers().size() >= arena.getMinPlayers() && !plugin.getCountdownManager().hasStartingCountdown(arena)) {
-            plugin.getCountdownManager().createStartingCountdown(arena, plugin.getConfigManager().getGameConfig(game).getConfig().getInt("CustomValues.StartWaitTime"));
+            plugin.getCountdownManager().createStartingCountdown(arena, plugin.getConfigManager().getGameConfig(game).getInt("CustomValues.StartWaitTime"));
         }
 
         for (PlayerSpawnPoint spawnPoint : plugin.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
@@ -130,7 +130,7 @@ public class HungerGame extends GamePlugin {
 
     @Override
     public void removePlayer(Player player, Arena arena) {
-        plugin.getMessageManager().sendGameMessage(arena, game, "leave", player.getDisplayName());
+        plugin.getMessenger().sendGameMessage(arena, game, "leave", player.getDisplayName());
         if (arena.getPlayers().size() <= 1) {
             plugin.getArenaManager().endArena(arena);
         }
@@ -162,11 +162,11 @@ public class HungerGame extends GamePlugin {
             String killerName = null;
             if (killer != null) {
                 killerName = killer.getName();
-                plugin.getMessageManager().sendGameMessage(arena, game, "Kill", killerName, event.getEntity().getName());
+                plugin.getMessenger().sendGameMessage(arena, game, "Kill", killerName, event.getEntity().getName());
                 plugin.getPointManager().addPoint(game, killerName, "kill", 1);
                 plugin.getPointManager().addPoint(game, killerName, "store", 2);
             } else {
-                plugin.getMessageManager().sendGameMessage(arena, game, "Death", event.getEntity().getName());
+                plugin.getMessenger().sendGameMessage(arena, game, "Death", event.getEntity().getName());
             }
             plugin.getPointManager().addPoint(game, event.getEntity().getName(), "death", 1);
             if (arena.getPlayers().size() <= 1) {
@@ -180,7 +180,7 @@ public class HungerGame extends GamePlugin {
         if (event.getInventory().getHolder() instanceof Chest && !chestOpened.get(arena).contains(((Chest) event.getInventory().getHolder()).getLocation())) {
             chestOpened.get(arena).add(((Chest) event.getInventory().getHolder()).getLocation());
             event.getInventory().clear();
-            List<String> drops = plugin.getConfigManager().getGameConfig(game).getConfig().getStringList("CustomValues.items");
+            List<String> drops = plugin.getConfigManager().getGameConfig(game).getStringList("CustomValues.items");
             int amount = 2 + random.nextInt(4);
             boolean[] slotsList = new boolean[event.getInventory().getSize()];
             for (int i = 0; i<= amount; i++) {
@@ -193,7 +193,8 @@ public class HungerGame extends GamePlugin {
                         ok = true;
                     }
                 }
-
+                String drop =  drops.get(random.nextInt(drops.size()));
+                System.out.println("DROP:" + drop);
                 event.getInventory().setItem(
                         slot,
                         new ItemStack(
