@@ -69,15 +69,15 @@ CustomValues:
     - APPLE
     - APPLE
     - APPLE
-    - RAW_PORKCHOP
-    - RAW_PORKCHOP
-    - RAW_PORKCHOP
-    - RAW_PORKCHOP
-    - RAW_PORKCHOP
-    - RAW_PORKCHOP
-    - RAW_PORKCHOP
-    - RAW_PORKCHOP
-    - RAW_PORKCHOP
+    - PORK
+    - PORK
+    - PORK
+    - PORK
+    - PORK
+    - PORK
+    - PORK
+    - PORK
+    - PORK
     - FLINT
     - FLINT
     - FLINT
@@ -114,12 +114,5 @@ CustomValues:
 Instructions:
 - "Right click with your railgun to gib other players!\n\nYour railgun takes one second to reload.\n\n&4First to 25 wins!"
 Messages:
-  GameEnd: "%s won %s on arena %s!"
-  Gib: "%s gibbed %s!"
-  MultipleKill: "&c%s kill!"
-  KillingSpree: "&b%s is on a killing spree!"
-  Rampage: "&b%s is on a rampage!"
-  Domination: "&b%s is dominating!"
-  Unstoppable: "&b%s is unstoppable!"
-  God: "&b%s is a god!"
-  Shutdown: "&b%s was shutdown!"
+  End: "%s won HungerGames!"
+  Kill: "%s killed %s!"

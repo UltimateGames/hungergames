@@ -83,7 +83,7 @@ public class HungerGame extends GamePlugin {
 
     @Override
     public void endArena(Arena arena) {
-
+        plugin.getMessenger().sendGameMessage(arena, game, "End", arena.getPlayers().get(0));
     }
 
     @Override
@@ -193,15 +193,11 @@ public class HungerGame extends GamePlugin {
                         ok = true;
                     }
                 }
-                String drop =  drops.get(random.nextInt(drops.size()));
-                System.out.println("DROP:" + drop);
                 event.getInventory().setItem(
                         slot,
                         new ItemStack(
                                 Material.matchMaterial(
-                                        drops.get(
-                                                random.nextInt(drops.size())
-                                        )
+                                        drops.get(random.nextInt(drops.size()))
                                 )
                         )
                 );
