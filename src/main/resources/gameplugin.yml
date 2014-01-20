@@ -1,5 +1,5 @@
-main-class: "com.greatmancode.hungergame.HungerGame"
-description: "The official Ultimate Games Quakecraft game"
+main-class: "com.greatmancode.hungergame.HungerGames"
+description: "The official Ultimate Games Hunger Games Game."
 version: "1.0"
 author: "greatman"
 playerType: "CONFIGUREABLE"
@@ -19,7 +19,7 @@ DefaultSettings:
   Use-Whitelist-As-Blacklist: false
 CustomValues:
   StartWaitTime: 30
-  MaxKills: 25
+  GracePeriodLength: 600
   items:
     - IRON_SWORD
     - WOOD_SWORD
@@ -132,7 +132,7 @@ CustomValues:
     - STICK
     - DIAMOND
 Instructions:
-- "Right click with your railgun to gib other players!\n\nYour railgun takes one second to reload.\n\n&4First to 25 wins!"
+- "Win by killing the others and avoiding being killed!"
 Messages:
   End: "%s won HungerGames!"
   Kill: "%s killed %s!"

@@ -7,6 +7,7 @@ import me.ampayne2.ultimategames.arenas.ArenaStatus;
 import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
 import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
 import me.ampayne2.ultimategames.games.Game;
+import me.ampayne2.ultimategames.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -21,25 +22,25 @@ import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
 
-public class HungerGame extends GamePlugin {
-
-    private UltimateGames plugin;
+public class HungerGames extends GamePlugin {
+    private UltimateGames ultimateGames;
     private Game game;
-    private Map<Arena, List<Location>> chestOpened = new HashMap<Arena, List<Location>>();
-    private Random random = new Random();
-    private final String ALIVE = ChatColor.GREEN + "Alive     ";
-    private final String DEAD = ChatColor.RED + "Dead          ";
+    private final Map<Arena, List<Location>> chestOpened = new HashMap<Arena, List<Location>>();
+    private final Map<Arena, Boolean> gracePeriods = new HashMap<Arena, Boolean>();
+    private static final String ALIVE = ChatColor.GREEN + "Alive     ";
+    private static final String DEAD = ChatColor.RED + "Dead          ";
+    private static final Random RANDOM = new Random();
 
     @Override
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
-        this.plugin = ultimateGames;
+        this.ultimateGames = ultimateGames;
         this.game = game;
         return true;
     }
 
     @Override
     public void unloadGame() {
-        this.plugin = null;
+        this.ultimateGames = null;
         this.game = null;
     }
 
@@ -62,6 +63,7 @@ public class HungerGame extends GamePlugin {
     @Override
     public boolean unloadArena(Arena arena) {
         chestOpened.remove(arena);
+        gracePeriods.remove(arena);
         return true;
     }
 
@@ -77,12 +79,19 @@ public class HungerGame extends GamePlugin {
     }
 
     @Override
-    public boolean beginArena(Arena arena) {
+    public boolean beginArena(final Arena arena) {
         chestOpened.get(arena).clear();
-        for (PlayerSpawnPoint spawnPoint :plugin.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
+        gracePeriods.put(arena, true);
+        ultimateGames.getServer().getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+            @Override
+            public void run() {
+                gracePeriods.put(arena, false);
+            }
+        }, ultimateGames.getConfigManager().getGameConfig(game).getLong("CustomValues.GracePeriodLength"));
+        for (PlayerSpawnPoint spawnPoint : ultimateGames.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
             spawnPoint.lock(false);
         }
-        ArenaScoreboard scoreboard = plugin.getScoreboardManager().createScoreboard(arena, "Status");
+        ArenaScoreboard scoreboard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Status");
         scoreboard.setScore(ALIVE, arena.getPlayers().size());
         scoreboard.setScore(DEAD, 0);
         scoreboard.setVisible(true);
@@ -94,7 +103,7 @@ public class HungerGame extends GamePlugin {
 
     @Override
     public void endArena(Arena arena) {
-        plugin.getMessenger().sendGameMessage(arena, game, "End", arena.getPlayers().get(0));
+        ultimateGames.getMessenger().sendGameMessage(arena, game, "End", arena.getPlayers().get(0));
     }
 
     @Override
@@ -116,15 +125,15 @@ public class HungerGame extends GamePlugin {
 
     @Override
     public boolean addPlayer(Player player, Arena arena) {
-        if (arena.getStatus() == ArenaStatus.OPEN && arena.getPlayers().size() >= arena.getMinPlayers() && !plugin.getCountdownManager().hasStartingCountdown(arena)) {
-            plugin.getCountdownManager().createStartingCountdown(arena, plugin.getConfigManager().getGameConfig(game).getInt("CustomValues.StartWaitTime"));
+        if (arena.getStatus() == ArenaStatus.OPEN && arena.getPlayers().size() >= arena.getMinPlayers() && !ultimateGames.getCountdownManager().hasStartingCountdown(arena)) {
+            ultimateGames.getCountdownManager().createStartingCountdown(arena, ultimateGames.getConfigManager().getGameConfig(game).getInt("CustomValues.StartWaitTime"));
         }
 
-        for (PlayerSpawnPoint spawnPoint : plugin.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
+        for (PlayerSpawnPoint spawnPoint : ultimateGames.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
             spawnPoint.lock(false);
         }
 
-        List<PlayerSpawnPoint> spawnPoints = plugin.getSpawnpointManager().getDistributedSpawnPoints(arena, arena.getPlayers().size());
+        List<PlayerSpawnPoint> spawnPoints = ultimateGames.getSpawnpointManager().getDistributedSpawnPoints(arena, arena.getPlayers().size());
         for (int i = 0; i < arena.getPlayers().size(); i++) {
             PlayerSpawnPoint spawnPoint = spawnPoints.get(i);
             spawnPoint.lock(true);
@@ -141,22 +150,21 @@ public class HungerGame extends GamePlugin {
 
     @Override
     public void removePlayer(Player player, Arena arena) {
-        plugin.getMessenger().sendGameMessage(arena, game, "leave", player.getDisplayName());
+        ultimateGames.getMessenger().sendGameMessage(arena, game, "leave", player.getDisplayName());
         if (arena.getPlayers().size() <= 1) {
-            plugin.getArenaManager().endArena(arena);
+            ultimateGames.getArenaManager().endArena(arena);
         }
     }
 
     @Override
     public boolean addSpectator(Player player, Arena arena) {
-        plugin.getSpawnpointManager().getSpectatorSpawnPoint(arena).teleportPlayer(player);
+        ultimateGames.getSpawnpointManager().getSpectatorSpawnPoint(arena).teleportPlayer(player);
         resetInventory(player);
         return true;
     }
 
     @Override
     public void removeSpectator(Player player, Arena arena) {
-
     }
 
     public void resetInventory(Player player) {
@@ -166,25 +174,26 @@ public class HungerGame extends GamePlugin {
 
     @Override
     public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        UGUtils.autoRespawn(player);
         if (arena.getStatus() == ArenaStatus.RUNNING) {
-            plugin.getPlayerManager().makePlayerSpectator(event.getEntity());
-            String playerName = event.getEntity().getName();
-            Player killer = event.getEntity().getKiller();
-            String killerName = null;
+            ultimateGames.getPlayerManager().makePlayerSpectator(player);
+            String playerName = player.getName();
+            Player killer = player.getKiller();
             if (killer != null) {
-                killerName = killer.getName();
-                plugin.getMessenger().sendGameMessage(arena, game, "Kill", killerName, event.getEntity().getName());
-                plugin.getPointManager().addPoint(game, killerName, "kill", 1);
-                plugin.getPointManager().addPoint(game, killerName, "store", 2);
+                String killerName = killer.getName();
+                ultimateGames.getMessenger().sendGameMessage(arena, game, "Kill", killerName, playerName);
+                ultimateGames.getPointManager().addPoint(game, killerName, "kill", 1);
+                ultimateGames.getPointManager().addPoint(game, killerName, "store", 2);
             } else {
-                plugin.getMessenger().sendGameMessage(arena, game, "Death", event.getEntity().getName());
+                ultimateGames.getMessenger().sendGameMessage(arena, game, "Death", playerName);
             }
-            ArenaScoreboard scoreboard = plugin.getScoreboardManager().getScoreboard(arena);
+            ArenaScoreboard scoreboard = ultimateGames.getScoreboardManager().getScoreboard(arena);
             scoreboard.setScore(ALIVE, scoreboard.getScore(ALIVE) - 1);
             scoreboard.setScore(DEAD, scoreboard.getScore(DEAD) + 1);
-            plugin.getPointManager().addPoint(game, event.getEntity().getName(), "death", 1);
+            ultimateGames.getPointManager().addPoint(game, playerName, "death", 1);
             if (arena.getPlayers().size() <= 1) {
-                plugin.getArenaManager().endArena(arena);
+                ultimateGames.getArenaManager().endArena(arena);
             }
         }
     }
@@ -194,33 +203,28 @@ public class HungerGame extends GamePlugin {
         if (event.getInventory().getHolder() instanceof Chest && !chestOpened.get(arena).contains(((Chest) event.getInventory().getHolder()).getLocation())) {
             chestOpened.get(arena).add(((Chest) event.getInventory().getHolder()).getLocation());
             event.getInventory().clear();
-            List<String> drops = plugin.getConfigManager().getGameConfig(game).getStringList("CustomValues.items");
-            int amount = 2 + random.nextInt(4);
+            List<String> drops = ultimateGames.getConfigManager().getGameConfig(game).getStringList("CustomValues.items");
+            int amount = 2 + RANDOM.nextInt(4);
             boolean[] slotsList = new boolean[event.getInventory().getSize()];
-            for (int i = 0; i<= amount; i++) {
+            for (int i = 0; i <= amount; i++) {
                 boolean ok = false;
                 int slot = 0;
                 while (!ok) {
-                    slot = random.nextInt(event.getInventory().getSize());
+                    slot = RANDOM.nextInt(event.getInventory().getSize());
                     if (!slotsList[slot]) {
                         slotsList[slot] = true;
                         ok = true;
                     }
                 }
-                event.getInventory().setItem(
-                        slot,
-                        new ItemStack(
-                                Material.matchMaterial(
-                                        drops.get(random.nextInt(drops.size()))
-                                )
-                        )
-                );
+                event.getInventory().setItem(slot, new ItemStack(Material.matchMaterial(drops.get(RANDOM.nextInt(drops.size())))));
             }
         }
     }
 
     @Override
     public void onEntityDamageByEntity(Arena arena, EntityDamageByEntityEvent event) {
-
+        if (!gracePeriods.containsKey(arena) || gracePeriods.get(arena)) {
+            event.setCancelled(true);
+        }
     }
 }

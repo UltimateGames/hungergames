@@ -49,7 +49,7 @@
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <defaultGoal>clean install</defaultGoal>
-        <finalName>HungerGame</finalName>
+        <finalName>HungerGames</finalName>
         <resources>
             <resource>
                 <targetPath>.</targetPath>
