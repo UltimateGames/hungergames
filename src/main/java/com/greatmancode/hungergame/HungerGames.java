@@ -1,13 +1,13 @@
 package com.greatmancode.hungergame;
 
-import me.ampayne2.ultimategames.UltimateGames;
-import me.ampayne2.ultimategames.api.GamePlugin;
-import me.ampayne2.ultimategames.arenas.Arena;
-import me.ampayne2.ultimategames.arenas.ArenaStatus;
-import me.ampayne2.ultimategames.arenas.scoreboards.ArenaScoreboard;
-import me.ampayne2.ultimategames.arenas.spawnpoints.PlayerSpawnPoint;
-import me.ampayne2.ultimategames.games.Game;
-import me.ampayne2.ultimategames.utils.UGUtils;
+import me.ampayne2.ultimategames.api.UltimateGames;
+import me.ampayne2.ultimategames.api.arenas.Arena;
+import me.ampayne2.ultimategames.api.arenas.ArenaStatus;
+import me.ampayne2.ultimategames.api.arenas.scoreboards.Scoreboard;
+import me.ampayne2.ultimategames.api.arenas.spawnpoints.PlayerSpawnPoint;
+import me.ampayne2.ultimategames.api.games.Game;
+import me.ampayne2.ultimategames.api.games.GamePlugin;
+import me.ampayne2.ultimategames.api.utils.UGUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -25,8 +25,8 @@ import java.util.*;
 public class HungerGames extends GamePlugin {
     private UltimateGames ultimateGames;
     private Game game;
-    private final Map<Arena, List<Location>> chestOpened = new HashMap<Arena, List<Location>>();
-    private final Map<Arena, Boolean> gracePeriods = new HashMap<Arena, Boolean>();
+    private final Map<Arena, List<Location>> chestOpened = new HashMap<>();
+    private final Map<Arena, Boolean> gracePeriods = new HashMap<>();
     private static final String ALIVE = ChatColor.GREEN + "Alive     ";
     private static final String DEAD = ChatColor.RED + "Dead          ";
     private static final Random RANDOM = new Random();
@@ -82,34 +82,32 @@ public class HungerGames extends GamePlugin {
     public boolean beginArena(final Arena arena) {
         chestOpened.get(arena).clear();
         gracePeriods.put(arena, true);
-        ultimateGames.getServer().getScheduler().scheduleSyncDelayedTask(ultimateGames, new Runnable() {
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ultimateGames.getPlugin(), new Runnable() {
             @Override
             public void run() {
                 gracePeriods.put(arena, false);
+                if (arena.getStatus() == ArenaStatus.RUNNING) {
+                    ultimateGames.getMessenger().sendGameMessage(arena, game, "GraceEnd");
+                }
             }
         }, ultimateGames.getConfigManager().getGameConfig(game).getLong("CustomValues.GracePeriodLength"));
         for (PlayerSpawnPoint spawnPoint : ultimateGames.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
             spawnPoint.lock(false);
         }
-        ArenaScoreboard scoreboard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Status");
+        Scoreboard scoreboard = ultimateGames.getScoreboardManager().createScoreboard(arena, "Status");
         scoreboard.setScore(ALIVE, arena.getPlayers().size());
         scoreboard.setScore(DEAD, 0);
         scoreboard.setVisible(true);
         for (String player : arena.getPlayers()) {
             scoreboard.addPlayer(Bukkit.getPlayer(player));
         }
+        ultimateGames.getMessenger().sendGameMessage(arena, game, "GraceStart");
         return true;
     }
 
     @Override
     public void endArena(Arena arena) {
         ultimateGames.getMessenger().sendGameMessage(arena, game, "End", arena.getPlayers().get(0));
-    }
-
-    @Override
-    public boolean resetArena(Arena arena) {
-        chestOpened.get(arena).clear();
-        return true;
     }
 
     @Override
@@ -167,6 +165,7 @@ public class HungerGames extends GamePlugin {
     public void removeSpectator(Player player, Arena arena) {
     }
 
+    @SuppressWarnings("deprecation")
     public void resetInventory(Player player) {
         player.getInventory().clear();
         player.updateInventory();
@@ -175,7 +174,7 @@ public class HungerGames extends GamePlugin {
     @Override
     public void onPlayerDeath(Arena arena, PlayerDeathEvent event) {
         Player player = event.getEntity();
-        UGUtils.autoRespawn(player);
+        UGUtils.autoRespawn(ultimateGames.getPlugin(), player);
         if (arena.getStatus() == ArenaStatus.RUNNING) {
             ultimateGames.getPlayerManager().makePlayerSpectator(player);
             String playerName = player.getName();
@@ -188,7 +187,7 @@ public class HungerGames extends GamePlugin {
             } else {
                 ultimateGames.getMessenger().sendGameMessage(arena, game, "Death", playerName);
             }
-            ArenaScoreboard scoreboard = ultimateGames.getScoreboardManager().getScoreboard(arena);
+            Scoreboard scoreboard = ultimateGames.getScoreboardManager().getScoreboard(arena);
             scoreboard.setScore(ALIVE, scoreboard.getScore(ALIVE) - 1);
             scoreboard.setScore(DEAD, scoreboard.getScore(DEAD) + 1);
             ultimateGames.getPointManager().addPoint(game, playerName, "death", 1);

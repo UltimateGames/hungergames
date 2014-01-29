@@ -134,6 +134,8 @@ CustomValues:
 Instructions:
 - "Win by killing the others and avoiding being killed!"
 Messages:
+  GraceStart: "&4You have a 30 second grace period!"
+  GraceEnd: "&4The grace period has ended."
   End: "%s won HungerGames!"
   Kill: "%s killed %s!"
   Death: "%s died!"
