@@ -87,7 +87,7 @@ public class HungerGames extends GamePlugin {
             public void run() {
                 gracePeriods.put(arena, false);
                 if (arena.getStatus() == ArenaStatus.RUNNING) {
-                    ultimateGames.getMessenger().sendGameMessage(arena, game, "GraceEnd");
+                    ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.GRACE_END);
                 }
             }
         }, ultimateGames.getConfigManager().getGameConfig(game).getLong("CustomValues.GracePeriodLength"));
@@ -101,13 +101,13 @@ public class HungerGames extends GamePlugin {
         for (String player : arena.getPlayers()) {
             scoreboard.addPlayer(Bukkit.getPlayer(player));
         }
-        ultimateGames.getMessenger().sendGameMessage(arena, game, "GraceStart");
+        ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.GRACE_START);
         return true;
     }
 
     @Override
     public void endArena(Arena arena) {
-        ultimateGames.getMessenger().sendGameMessage(arena, game, "End", arena.getPlayers().get(0));
+        ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.END, arena.getPlayers().get(0));
     }
 
     @Override
@@ -148,7 +148,7 @@ public class HungerGames extends GamePlugin {
 
     @Override
     public void removePlayer(Player player, Arena arena) {
-        ultimateGames.getMessenger().sendGameMessage(arena, game, "leave", player.getDisplayName());
+        ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.LEAVE, player.getDisplayName());
         if (arena.getPlayers().size() <= 1) {
             ultimateGames.getArenaManager().endArena(arena);
         }
@@ -181,11 +181,11 @@ public class HungerGames extends GamePlugin {
             Player killer = player.getKiller();
             if (killer != null) {
                 String killerName = killer.getName();
-                ultimateGames.getMessenger().sendGameMessage(arena, game, "Kill", killerName, playerName);
+                ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.KILL, killerName, playerName);
                 ultimateGames.getPointManager().addPoint(game, killerName, "kill", 1);
                 ultimateGames.getPointManager().addPoint(game, killerName, "store", 2);
             } else {
-                ultimateGames.getMessenger().sendGameMessage(arena, game, "Death", playerName);
+                ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.DEATH, playerName);
             }
             Scoreboard scoreboard = ultimateGames.getScoreboardManager().getScoreboard(arena);
             scoreboard.setScore(ALIVE, scoreboard.getScore(ALIVE) - 1);
