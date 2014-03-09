@@ -35,6 +35,7 @@ public class HungerGames extends GamePlugin {
     public boolean loadGame(UltimateGames ultimateGames, Game game) {
         this.ultimateGames = ultimateGames;
         this.game = game;
+        game.setMessages(HGMessage.class);
         return true;
     }
 
