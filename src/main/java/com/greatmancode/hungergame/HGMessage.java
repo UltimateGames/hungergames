@@ -17,6 +17,7 @@ public enum HGMessage implements Message {
     private HGMessage(String path, String defaultMessage) {
         this.path = path;
         this.defaultMessage = defaultMessage;
+        this.message = defaultMessage;
     }
 
     @Override
