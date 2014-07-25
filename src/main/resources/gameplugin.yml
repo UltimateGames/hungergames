@@ -4,22 +4,15 @@ version: "1.0"
 author: "greatman"
 playerType: "CONFIGUREABLE"
 DefaultSettings:
-  MinPlayers: 2
+  MinPlayers: 4
   MaxPlayers: 16
-  Players:
-    Store-Inventory: false
-    Store-Armor: false
-    Store-Exp: false
-    Store-Effects: false
-    Store-Gamemode: false
-  Reset-After-Match: false
   Allow-Explosion-Damage: true
   Allow-Explosion-Block-Breaking: false
-  Allow-Mob-Spawning: false
+  Allow-Mob-Spawning: true
   Use-Whitelist-As-Blacklist: false
 CustomValues:
   StartWaitTime: 30
-  GracePeriodLength: 600
+  GracePeriodLength: 200
   items:
     - IRON_SWORD
     - WOOD_SWORD

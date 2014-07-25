@@ -3,7 +3,7 @@ package com.greatmancode.hungergame;
 import me.ampayne2.ultimategames.api.message.Message;
 
 public enum HGMessage implements Message {
-    GRACE_START("GraceStart", "&4You have a 30 second grace period!"),
+    GRACE_START("GraceStart", "&4You have a %s second grace period!"),
     GRACE_END("GraceEnd", "&4The grace period has ended."),
     END("End", "%s won HungerGames!"),
     KILL("Kill", "%s killed %s!"),

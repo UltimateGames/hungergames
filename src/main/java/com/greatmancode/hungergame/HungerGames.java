@@ -19,8 +19,13 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class HungerGames extends GamePlugin {
     private UltimateGames ultimateGames;
@@ -83,6 +88,7 @@ public class HungerGames extends GamePlugin {
     public boolean beginArena(final Arena arena) {
         chestOpened.get(arena).clear();
         gracePeriods.put(arena, true);
+        long gracePeriod = ultimateGames.getConfigManager().getGameConfig(game).getLong("CustomValues.GracePeriodLength", 200);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(ultimateGames.getPlugin(), new Runnable() {
             @Override
             public void run() {
@@ -91,7 +97,7 @@ public class HungerGames extends GamePlugin {
                     ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.GRACE_END);
                 }
             }
-        }, ultimateGames.getConfigManager().getGameConfig(game).getLong("CustomValues.GracePeriodLength"));
+        }, gracePeriod);
         for (PlayerSpawnPoint spawnPoint : ultimateGames.getSpawnpointManager().getSpawnPointsOfArena(arena)) {
             spawnPoint.lock(false);
         }
@@ -100,9 +106,9 @@ public class HungerGames extends GamePlugin {
         scoreboard.setScore(DEAD, 0);
         scoreboard.setVisible(true);
         for (String player : arena.getPlayers()) {
-            scoreboard.addPlayer(Bukkit.getPlayer(player));
+            scoreboard.addPlayer(Bukkit.getPlayerExact(player));
         }
-        ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.GRACE_START);
+        ultimateGames.getMessenger().sendGameMessage(arena, game, HGMessage.GRACE_START, String.valueOf(gracePeriod / 20));
         return true;
     }
 
@@ -177,8 +183,17 @@ public class HungerGames extends GamePlugin {
         Player player = event.getEntity();
         UGUtils.autoRespawn(ultimateGames.getPlugin(), player);
         if (arena.getStatus() == ArenaStatus.RUNNING) {
+            final String playerName = player.getName();
             ultimateGames.getPlayerManager().makePlayerSpectator(player);
-            String playerName = player.getName();
+            Bukkit.getScheduler().scheduleSyncDelayedTask(ultimateGames.getPlugin(), new Runnable() {
+                @Override
+                public void run() {
+                    Player player = Bukkit.getPlayerExact(playerName);
+                    if (player != null) {
+                        UGUtils.increasePotionEffect(player, PotionEffectType.INVISIBILITY);
+                    }
+                }
+            }, 5L);
             Player killer = player.getKiller();
             if (killer != null) {
                 String killerName = killer.getName();
